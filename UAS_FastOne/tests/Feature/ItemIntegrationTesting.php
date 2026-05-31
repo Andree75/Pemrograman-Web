@@ -14,6 +14,10 @@ class ItemIntegrationTesting extends TestCase
 {
     use RefreshDatabase;
 
+    // =========================================================================
+    // PENGUJI 1: Andri Darmawan (Modul Integrasi Pelanggan & Admin)
+    // =========================================================================
+
     /**
      * IT-01: TestIntegrasi Front-to-Back
      * Skenario: Pengiriman data dari Pelanggan ke Admin.
@@ -54,44 +58,6 @@ class ItemIntegrationTesting extends TestCase
             'user_id' => $pelanggan->id,
             'pesan' => 'Pesan Testing Integrasi'
         ]);
-    }
-
-    /**
-     * IT-02: TestIntegrasi Routing Admin
-     * Skenario: Passing parameter ID antar halaman Admin.
-     */
-    public function test_integrasi_routing_admin()
-    {
-        // 1. Persiapan Data Lengkap (Menambahkan judul_halaman untuk menghindari error)
-        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        
-        Layanan::unguard();
-        $layanan = Layanan::create([
-            'nama' => 'Layanan Routing', 
-            'slug' => 'layanan-routing', 
-            'judul_halaman' => 'Judul Halaman Routing', // FIX: Kolom wajib diisi
-            'deskripsi_singkat' => '-',
-            'konten_lengkap' => '-',
-            'gambar' => 'test.jpg'
-        ]);
-        Layanan::reguard();
-        
-        PermintaanLayanan::unguard();
-        $permintaan = PermintaanLayanan::create([
-            'user_id' => $user->id,
-            'layanan_id' => $layanan->id,
-            'telepon_pengguna' => '0888999000',
-            'status' => 'Baru'
-        ]);
-        PermintaanLayanan::reguard();
-
-        // 2. Admin mengakses rute edit
-        $response = $this->actingAs($admin)->get('/admin/permintaan/' . $permintaan->id . '/edit');
-
-        // 3. Verifikasi
-        $response->assertStatus(200);
-        $response->assertSee('0888999000');
     }
 
     /**
@@ -148,6 +114,49 @@ class ItemIntegrationTesting extends TestCase
         ]);
     }
 
+
+    // =========================================================================
+    // PENGUJI 2: Muhammad Fakhrudin (Modul Integrasi Layanan & Admin)
+    // =========================================================================
+
+    /**
+     * IT-02: TestIntegrasi Routing Admin
+     * Skenario: Passing parameter ID antar halaman Admin.
+     */
+    public function test_integrasi_routing_admin()
+    {
+        // 1. Persiapan Data Lengkap (Menambahkan judul_halaman untuk menghindari error)
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        
+        Layanan::unguard();
+        $layanan = Layanan::create([
+            'nama' => 'Layanan Routing', 
+            'slug' => 'layanan-routing', 
+            'judul_halaman' => 'Judul Halaman Routing', // FIX: Kolom wajib diisi
+            'deskripsi_singkat' => '-',
+            'konten_lengkap' => '-',
+            'gambar' => 'test.jpg'
+        ]);
+        Layanan::reguard();
+        
+        PermintaanLayanan::unguard();
+        $permintaan = PermintaanLayanan::create([
+            'user_id' => $user->id,
+            'layanan_id' => $layanan->id,
+            'telepon_pengguna' => '0888999000',
+            'status' => 'Baru'
+        ]);
+        PermintaanLayanan::reguard();
+
+        // 2. Admin mengakses rute edit
+        $response = $this->actingAs($admin)->get('/admin/permintaan/' . $permintaan->id . '/edit');
+
+        // 3. Verifikasi
+        $response->assertStatus(200);
+        $response->assertSee('0888999000');
+    }
+
     /**
      * IT-04: TestIntegrasi Alur Langganan End-to-End
      * Skenario: Pelanggan pilih paket → subscribe → data muncul di panel Admin.
@@ -188,6 +197,11 @@ class ItemIntegrationTesting extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Budi Pelanggan');
     }
+
+
+    // =========================================================================
+    // PENGUJI 3: Miftahul Ulum (Modul Integrasi Paket & Status Admin)
+    // =========================================================================
 
     /**
      * IT-05: TestIntegrasi CRUD Paket & Halaman Publik

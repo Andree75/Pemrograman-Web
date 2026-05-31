@@ -13,6 +13,10 @@ class ItemUnitTesting extends TestCase
 {
     use RefreshDatabase;
 
+    // =========================================================================
+    // PENGUJI 1: Andri Darmawan (Autentikasi & Profil)
+    // =========================================================================
+
     /**
      * UT-01: Modul Autentikasi (/register) - SUDAH PASS
      */
@@ -27,104 +31,6 @@ class ItemUnitTesting extends TestCase
 
         $this->assertDatabaseHas('users', ['email' => 'andre.test@example.com']);
         $response->assertStatus(302);
-    }
-
-    /**
-     * UT-02: Pengajuan Form Konsultasi
-     */
-    public function test_pengajuan_form_konsultasi()
-    {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        
-        Layanan::unguard();
-        $layanan = Layanan::create([
-            'nama' => 'Konsultasi Teknis',
-            'judul_halaman' => 'Konsultasi Teknis', 
-            'slug' => 'konsultasi-teknis', 
-            'deskripsi_singkat' => '-', 
-            'konten_lengkap' => '-',
-            'gambar' => 'default.jpg'
-        ]);
-        Layanan::reguard();
-
-        $response = $this->actingAs($user)->post('/permintaan-layanan', [
-            'layanan_id' => $layanan->id,
-            'telepon_pengguna' => '08812345678',
-            'pesan' => 'Ingin konsultasi wifi'
-        ]); 
-
-        $this->assertDatabaseHas('permintaan_layanans', [
-            'telepon_pengguna' => '08812345678'
-        ]);
-    }
-
-    /**
-     * UT-03: Pengajuan Form Upgrade Paket
-     */
-    public function test_pengajuan_form_upgrade_paket()
-    {
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        
-        Paket::unguard();
-        $paket = Paket::create([
-            'nama' => 'Paket Pro', 
-            'judul' => 'Paket Pro Premium', // FIX: Tambahkan judul
-            'slug' => 'paket-pro', 
-            'harga' => 500000, 
-            'deskripsi' => 'Test Upgrade',
-            'gambar' => 'default.jpg',
-            'fitur' => 'Koneksi Stabil, Support 24/7'
-        ]);
-        Paket::reguard();
-
-        $response = $this->actingAs($user)->post('/langganan', [
-            'paket_id' => $paket->id,
-            'telepon' => '081234567890',
-            'alamat' => 'Jl. Testing No. 1'
-        ]); 
-
-        $this->assertDatabaseHas('pelanggans', [
-            'email' => $user->email,
-            'paket_id' => $paket->id
-        ]);
-    }
-
-    /**
-     * UT-04: Update Status oleh Admin
-     */
-    public function test_update_status_oleh_admin()
-    {
-        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
-        $user = User::factory()->create(['email_verified_at' => now()]);
-        
-        Layanan::unguard();
-        $layanan = Layanan::create([
-            'nama' => 'Layanan Test', 
-            'judul_halaman' => 'Layanan Test', 
-            'slug' => 'test',
-            'deskripsi_singkat' => '-',
-            'konten_lengkap' => '-',
-            'gambar' => 'default.jpg' // FIX: Tambahkan gambar
-        ]); 
-        Layanan::reguard();
-        
-        PermintaanLayanan::unguard();
-        $permintaan = PermintaanLayanan::create([
-            'user_id' => $user->id,
-            'layanan_id' => $layanan->id,
-            'telepon_pengguna' => '081234567890',
-            'status' => 'Baru'
-        ]);
-        PermintaanLayanan::reguard();
-
-        $response = $this->actingAs($admin)->put('/admin/permintaan/' . $permintaan->id, [
-            'status' => 'Selesai'
-        ]); 
-
-        $this->assertDatabaseHas('permintaan_layanans', [
-            'id' => $permintaan->id,
-            'status' => 'Selesai'
-        ]);
     }
 
     /**
@@ -194,6 +100,81 @@ class ItemUnitTesting extends TestCase
     }
 
     /**
+     * UT-17: User Akses Akun Saya
+     */
+    public function test_user_akses_akun_saya()
+    {
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/akun-saya');
+        $response->assertStatus(200);
+    }
+
+
+    // =========================================================================
+    // PENGUJI 2: Muhammad Fakhrudin (Halaman Publik & Portal Pelanggan)
+    // =========================================================================
+
+    /**
+     * UT-02: Pengajuan Form Konsultasi
+     */
+    public function test_pengajuan_form_konsultasi()
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        
+        Layanan::unguard();
+        $layanan = Layanan::create([
+            'nama' => 'Konsultasi Teknis',
+            'judul_halaman' => 'Konsultasi Teknis', 
+            'slug' => 'konsultasi-teknis', 
+            'deskripsi_singkat' => '-', 
+            'konten_lengkap' => '-',
+            'gambar' => 'default.jpg'
+        ]);
+        Layanan::reguard();
+
+        $response = $this->actingAs($user)->post('/permintaan-layanan', [
+            'layanan_id' => $layanan->id,
+            'telepon_pengguna' => '08812345678',
+            'pesan' => 'Ingin konsultasi wifi'
+        ]); 
+
+        $this->assertDatabaseHas('permintaan_layanans', [
+            'telepon_pengguna' => '08812345678'
+        ]);
+    }
+
+    /**
+     * UT-03: Pengajuan Form Upgrade Paket
+     */
+    public function test_pengajuan_form_upgrade_paket()
+    {
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        
+        Paket::unguard();
+        $paket = Paket::create([
+            'nama' => 'Paket Pro', 
+            'judul' => 'Paket Pro Premium', // FIX: Tambahkan judul
+            'slug' => 'paket-pro', 
+            'harga' => 500000, 
+            'deskripsi' => 'Test Upgrade',
+            'gambar' => 'default.jpg',
+            'fitur' => 'Koneksi Stabil, Support 24/7'
+        ]);
+        Paket::reguard();
+
+        $response = $this->actingAs($user)->post('/langganan', [
+            'paket_id' => $paket->id,
+            'telepon' => '081234567890',
+            'alamat' => 'Jl. Testing No. 1'
+        ]); 
+
+        $this->assertDatabaseHas('pelanggans', [
+            'email' => $user->email,
+            'paket_id' => $paket->id
+        ]);
+    }
+
+    /**
      * UT-09: Akses Halaman Beranda
      */
     public function test_halaman_beranda()
@@ -241,6 +222,49 @@ class ItemUnitTesting extends TestCase
 
         $response = $this->get('/paket/test-paket');
         $response->assertStatus(200);
+    }
+
+
+    // =========================================================================
+    // PENGUJI 3: Miftahul Ulum (Panel Admin & CRUD)
+    // =========================================================================
+
+    /**
+     * UT-04: Update Status oleh Admin
+     */
+    public function test_update_status_oleh_admin()
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'email_verified_at' => now()]);
+        $user = User::factory()->create(['email_verified_at' => now()]);
+        
+        Layanan::unguard();
+        $layanan = Layanan::create([
+            'nama' => 'Layanan Test', 
+            'judul_halaman' => 'Layanan Test', 
+            'slug' => 'test',
+            'deskripsi_singkat' => '-',
+            'konten_lengkap' => '-',
+            'gambar' => 'default.jpg' // FIX: Tambahkan gambar
+        ]); 
+        Layanan::reguard();
+        
+        PermintaanLayanan::unguard();
+        $permintaan = PermintaanLayanan::create([
+            'user_id' => $user->id,
+            'layanan_id' => $layanan->id,
+            'telepon_pengguna' => '081234567890',
+            'status' => 'Baru'
+        ]);
+        PermintaanLayanan::reguard();
+
+        $response = $this->actingAs($admin)->put('/admin/permintaan/' . $permintaan->id, [
+            'status' => 'Selesai'
+        ]); 
+
+        $this->assertDatabaseHas('permintaan_layanans', [
+            'id' => $permintaan->id,
+            'status' => 'Selesai'
+        ]);
     }
 
     /**
@@ -351,15 +375,5 @@ class ItemUnitTesting extends TestCase
         ]);
 
         $this->assertDatabaseHas('layanans', ['judul_halaman' => 'Judul Baru Banget']);
-    }
-
-    /**
-     * UT-17: User Akses Akun Saya
-     */
-    public function test_user_akses_akun_saya()
-    {
-        $user = User::factory()->create();
-        $response = $this->actingAs($user)->get('/akun-saya');
-        $response->assertStatus(200);
     }
 }
